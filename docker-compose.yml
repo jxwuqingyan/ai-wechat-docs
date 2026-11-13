@@ -1,0 +1,28 @@
+# 公众号排版工作台 · 一键编排
+#
+#   docker compose up -d        启动
+#   docker compose logs -f      看日志
+#   docker compose down         停止并删除容器
+#
+# 端口只绑定到宿主机 127.0.0.1，公网访问请走 Nginx 反向代理（见 deploy/nginx.conf.example）。
+
+services:
+  wx-mp-studio:
+    build: .
+    image: wx-mp-studio:latest
+    container_name: wx-mp-studio
+    ports:
+      - "127.0.0.1:8765:8765"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

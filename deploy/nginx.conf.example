@@ -1,0 +1,57 @@
+# 公众号排版工作台 · Nginx 反向代理示例
+#
+# 用途：把这个只监听 127.0.0.1:8765 的本地服务，安全地提供给「内网 / 特定用户」访问。
+# 把这个 server 块放进 /etc/nginx/conf.d/wxmp.conf 或 sites-available 里，然后 nginx -t && systemctl reload nginx
+#
+# 重要：本服务没有任何登录功能（它是为单机使用设计的）。
+#      一旦挂到公网，等于把你的排版工作台公开给所有人 —— 所以这里强制加了 Basic Auth。
+#      生产环境请再叠加 HTTPS 与 IP 白名单。
+
+# ---- 先建一个访问口令（用户名 wxmp）----
+#   sudo apt install apache2-utils        # Debian/Ubuntu
+#   sudo htpasswd -c /etc/nginx/.htpasswd wxmp
+
+server {
+    listen 80;
+    server_name wxmp.example.com;      # 改成你的域名
+
+    # 强制走 HTTPS（证书配好后取消注释）
+    # return 301 https://$host$request_uri;
+
+    access_log /var/log/nginx/wxmp.access.log;
+    error_log  /var/log/nginx/wxmp.error.log;
+
+    # ① 访问控制：Basic Auth
+    auth_basic           "WeChat MP Studio";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+
+    # ② 访问控制：只允许公司出口 IP / 内网网段（按需启用，比 Basic Auth 更省心）
+    # allow 10.0.0.0/8;
+    # allow 203.0.113.10;
+    # deny  all;
+
+    location / {
+        proxy_pass         http://127.0.0.1:8765;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        # ③ 上传体积：前端把 Word 转成 base64 上传，体积约为原文件的 1.37 倍，
+        #    服务端上限 24MB，因此这里给到 32MB，否则大文档会 413。
+        client_max_body_size 32m;
+        client_body_timeout  120s;
+
+        # 转换是本地 CPU 计算，通常几毫秒；给足余量即可
+        proxy_connect_timeout 10s;
+        proxy_read_timeout    120s;
+        proxy_send_timeout    120s;
+
+        # 不做缓冲，避免下载大文件时占内存
+        proxy_buffering off;
+    }
+
+    # 关闭不需要的入口，减少暴露面
+    location = /favicon.ico { access_log off; log_not_found off; }
+}

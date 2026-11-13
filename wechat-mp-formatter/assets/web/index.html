@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>公众号排版工作台</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">📝</span>
+    <div class="brand-text">
+      <h1>公众号排版工作台</h1>
+      <p>Markdown / Word → 可直接粘贴进公众号编辑器的排版</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn primary" id="btnCopy" title="复制富文本到剪贴板（⌘/Ctrl+Shift+C）">
+      <span class="ico">⧉</span>复制全文
+    </button>
+    <button class="btn" id="btnDownloadPreview"
+            title="下载一个带「复制全文」按钮的页面，可随时打开复制粘贴（⌘/Ctrl+S）">下载页面</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <label class="field">
+    <span>文章主题</span>
+    <select id="theme"></select>
+  </label>
+  <label class="field">
+    <span>代码配色</span>
+    <select id="codeTheme"></select>
+  </label>
+  <label class="field">
+    <span>正文字号</span>
+    <select id="fontSize">
+      <option value="12">12px</option>
+      <option value="13">13px</option>
+      <option value="14">14px</option>
+      <option value="15">15px</option>
+      <option value="16" selected>16px（推荐）</option>
+      <option value="17">17px</option>
+      <option value="18">18px</option>
+    </select>
+  </label>
+  <label class="check"><input type="checkbox" id="lineNumbers"><span>代码行号</span></label>
+  <button class="btn ghost" id="btnMore" aria-expanded="false">更多设置 ▾</button>
+
+  <span class="spacer"></span>
+
+  <label class="btn file-btn">
+    上传文件
+    <input type="file" id="fileInput" accept=".md,.markdown,.mdown,.txt,.docx,.docm" hidden>
+  </label>
+  <button class="btn ghost" id="btnSample">载入示例</button>
+  <button class="btn ghost danger" id="btnClear">清空</button>
+</div>
+
+<div class="more-panel" id="morePanel" hidden>
+  <div class="more-grid">
+    <label class="field"><span>文章标题</span><input id="metaTitle" placeholder="留空则不生成片头"></label>
+    <label class="field"><span>作者 / 署名</span><input id="metaAuthor" placeholder="例如：运维笔记"></label>
+    <label class="field"><span>日期</span><input id="metaDate" placeholder="2026-10-15"></label>
+    <label class="field"><span>片尾引导语</span><input id="metaFooter" value="如果这篇文章对你有帮助，欢迎点赞、在看和转发 👋"></label>
+    <label class="field"><span>标题样式</span>
+      <select id="headingStyle">
+        <option value="modern">装饰型（默认）</option>
+        <option value="simple">素雅型</option>
+      </select>
+    </label>
+    <label class="field"><span>分隔线</span>
+      <select id="divider">
+        <option value="dots">三圆点（默认）</option>
+        <option value="line">细线</option>
+        <option value="gradient">渐变条</option>
+      </select>
+    </label>
+    <label class="field"><span>超链接处理</span>
+      <select id="linkMode">
+        <option value="keep">保留链接（默认）</option>
+        <option value="text">转为「文字（URL）」</option>
+        <option value="strip">只保留文字</option>
+      </select>
+    </label>
+    <label class="field"><span>代码长行处理</span>
+      <select id="codeMode">
+        <option value="block">自动折行（默认，手机不溢出）</option>
+        <option value="scroll">不折行，横向滚动查看</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" id="codeChrome" checked><span>代码块顶部语言栏</span></label>
+    <label class="check"><input type="checkbox" id="flatTags"><span>标题也用 &lt;p&gt; 输出</span></label>
+  </div>
+</div>
+
+<main class="workspace">
+  <section class="pane pane-editor">
+    <div class="pane-head">
+      <span class="pane-title">源文档</span>
+      <span class="pane-hint" id="editorHint">支持 Markdown 编辑，或拖入 .md / .docx 文件</span>
+      <span class="tag" id="docxTag" hidden></span>
+    </div>
+    <textarea id="editor" spellcheck="false" placeholder="在这里粘贴 Markdown，或把 .md / .docx 文件拖进来……"></textarea>
+
+    <!-- 合规自检：折叠在编辑区下方（默认收起），展开时只挤压编辑区，不干扰右侧手机预览 -->
+    <div class="check-panel" id="checkPanel" hidden>
+      <div class="check-panel-head">
+        <span class="check-panel-title">合规自检 · 待处理项</span>
+        <button class="btn ghost tiny" id="btnCheckClose">收起</button>
+      </div>
+      <div class="check-panel-body" id="checkBody"></div>
+    </div>
+  </section>
+
+  <section class="pane pane-preview">
+    <div class="pane-head">
+      <span class="pane-title">手机预览</span>
+      <div class="seg" id="widthSeg">
+        <button data-w="pro" class="on" title="iPhone 18 Pro 真机比例：屏幕 CSS 视口 402 × 874 pt（DPR 3×，6.3 英寸），自动缩放至完整可见">iPhone 18 Pro</button>
+        <button data-w="actual" title="按 100% 实际像素显示，可上下滚动查看">1:1</button>
+        <button data-w="wide" title="去掉机身外壳，按宽屏查看">宽屏</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="pane-hint" id="previewHint"></span>
+    </div>
+
+    <div class="preview-scroll" id="previewScroll">
+      <div class="phone-stage" id="phoneStage">
+        <div class="phone" id="phone">
+          <div class="phone-screen">
+            <div class="phone-status">
+              <span class="status-time">9:41</span>
+              <span class="dynamic-island"></span>
+              <span class="status-icons">
+                <!-- 三个图标都用内联 SVG：CSS 渐变拼不出 WiFi 的扇形弧带，小尺寸下会糊成一团 -->
+                <svg class="ico sig" viewBox="0 0 17 12" aria-hidden="true">
+                  <rect x="0" y="7.6" width="3.1" height="4.4" rx="1.05"/>
+                  <rect x="4.6" y="5.1" width="3.1" height="6.9" rx="1.05"/>
+                  <rect x="9.2" y="2.6" width="3.1" height="9.4" rx="1.05"/>
+                  <rect x="13.8" y="0" width="3.1" height="12" rx="1.05"/>
+                </svg>
+                <svg class="ico wifi" viewBox="0 0 24 24" aria-hidden="true">
+                  <g class="arc">
+                    <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+                    <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                  </g>
+                  <circle class="dot" cx="12" cy="19.7" r="1.45"/>
+                </svg>
+                <svg class="ico batt" viewBox="0 0 27 12" aria-hidden="true">
+                  <rect class="shell" x=".8" y=".8" width="23.4" height="10.4" rx="3.4"/>
+                  <!-- 极耳要和外框重叠 0.5 单位，否则小尺寸下会被抗锯齿切出一条白缝 -->
+                  <path class="cap" d="M24.4 4.15c.85.5 1.35 1.15 1.35 1.85s-.5 1.35-1.35 1.85z"/>
+                  <rect class="cell" x="2.6" y="2.6" width="14.4" height="6.8" rx="2.1"/>
+                </svg>
+              </span>
+            </div>
+            <div class="phone-body">
+              <div id="mpContent"><div class="empty-state">
+                <div class="empty-ico">📄</div>
+                <p>左侧粘贴或上传文档，这里会实时显示粘贴后的效果</p>
+                <p class="empty-sub">点「载入示例」可以马上看一份完整样板</p>
+              </div></div>
+            </div>
+            <div class="phone-home"><i></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="statusbar">
+  <div class="stats" id="stats">
+    <span class="stat"><b id="stWords">0</b> 字</span>
+    <span class="stat"><b id="stCode">0</b> 代码块</span>
+    <span class="stat"><b id="stTables">0</b> 表格</span>
+    <span class="stat"><b id="stImages">0</b> 图片</span>
+    <span class="stat muted" id="stCost">—</span>
+  </div>
+  <span class="spacer"></span>
+  <div class="badge ok" id="checkBadge">✅ 合规自检通过</div>
+  <button class="btn ghost tiny" id="btnCheckDetail" hidden>查看待处理项</button>
+  <span class="muted tiny" id="saveHint"></span>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

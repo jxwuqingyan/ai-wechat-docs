@@ -1,0 +1,30 @@
+[
+  {
+    "name": "载入示例文章（相当于点了「载入示例」）",
+    "setEditor": "wechat-mp-formatter/assets/sample.md",
+    "wait": 2600,
+    "shot": "01-workbench"
+  },
+  {
+    "name": "手机预览里的状态栏放大 4 倍看图标",
+    "clipShot": { "selector": ".phone-status", "scale": 4, "name": "02-statusbar-4x" }
+  },
+  {
+    "name": "自检面板与统计",
+    "eval": "(()=>({badge:document.getElementById('checkBadge').textContent,stats:document.getElementById('stats').innerText.replace(/\\n/g,' ').slice(0,80)}))()"
+  },
+  {
+    "name": "模拟微信清洗：把产物里所有 style 整条抹掉再渲染",
+    "eval": "(()=>{const src=document.getElementById('mpContent');const old=document.getElementById('__sim');if(old)old.remove();const box=document.createElement('div');box.id='__sim';box.style.cssText='position:fixed;left:0;top:0;width:402px;max-height:100vh;overflow:auto;background:#fff;color:#333;padding:18px 16px;z-index:2147483646;font-size:15px;line-height:1.75;box-shadow:0 0 0 2px #f00';const c=src.cloneNode(true);c.querySelectorAll('*').forEach(el=>el.removeAttribute('style'));box.appendChild(c);document.body.appendChild(box);return (box.innerText||'').replace(/\\s+/g,' ').slice(0,120);})()",
+    "wait": 600,
+    "shot": "03-wechat-cleaned"
+  },
+  {
+    "name": "读列表编号序列（应逐项递增，不该全是 1）",
+    "eval": "(()=>[...document.querySelectorAll('#mpContent span')].filter(e=>{const s=e.getAttribute('style')||'';return s.includes('inline-block')&&s.includes('font-weight:bold')}).map(e=>e.textContent.replace(/\\u00a0/g,'').trim()))()"
+  },
+  {
+    "name": "清理模拟层",
+    "eval": "(()=>{const b=document.getElementById('__sim');if(b)b.remove();return 'cleaned';})()"
+  }
+]

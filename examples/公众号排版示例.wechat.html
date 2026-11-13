@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pod 一直 Pending 怎么查 · 公众号排版预览</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #f4f5f7; color: #23272e;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  }
+  .bar {
+    position: sticky; top: 0; z-index: 99; display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center; padding: 12px 18px; background: #fff;
+    border-bottom: 1px solid #e6e8eb; box-shadow: 0 1px 6px rgba(0,0,0,.04);
+  }
+  .bar h1 { margin: 0 12px 0 0; font-size: 15px; font-weight: 600; white-space: nowrap; }
+  .bar .spacer { flex: 1; }
+  button {
+    border: 1px solid #dcdfe6; background: #fff; color: #303133; cursor: pointer;
+    padding: 7px 14px; border-radius: 6px; font-size: 13px; transition: .15s;
+    font-family: inherit;
+  }
+  button:hover { border-color: #07c160; color: #07c160; }
+  button.primary { background: #07c160; border-color: #07c160; color: #fff; }
+  button.primary:hover { background: #06ad56; color: #fff; }
+  .meta { font-size: 12px; color: #909399; margin-right: 4px; }
+  .stage { display: flex; justify-content: center; padding: 26px 14px 60px; }
+  .phone {
+    background: #fff; width: 750px; max-width: 100%; padding: 34px 22px;
+    border-radius: 10px; box-shadow: 0 6px 28px rgba(0,0,0,.07);
+  }
+  /* 手机视图按 iPhone 18 Pro 的 CSS 视口宽度 402px，左右内边距 20px，
+     正文可用宽度 362px —— 与工作台里的真机预览保持一致，折行位置才对得上 */
+  .phone.narrow { width: 402px; padding: 30px 20px; }
+  .notice {
+    margin: 0 0 18px; padding: 12px 14px; border-radius: 8px; font-size: 13px;
+    line-height: 1.7; background: #fff7e6; border: 1px solid #ffe0a3; color: #8a5a00;
+  }
+  .notice code { background: #fff; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .notice ul { margin: 8px 0 0; padding-left: 20px; }
+  .hidden { display: none !important; }
+  #toast {
+    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
+    background: #23272e; color: #fff; padding: 11px 22px; border-radius: 8px; font-size: 14px;
+    opacity: 0; pointer-events: none; transition: .25s; z-index: 999;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .tip { text-align: center; color: #a8abb2; font-size: 12px; margin-top: 22px; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>公众号排版预览</h1>
+  <span class="meta">正文字数 302 · 代码块 5 · 表格 1 · 图片 0</span>
+  <span class="spacer"></span>
+  <button class="primary" onclick="copyRich()">复制全文（推荐）</button>
+  <button onclick="toggleHome()">手机视图</button>
+</div>
+
+<div class="stage">
+  <div class="phone" id="phone">
+    
+    <div id="mp-content">
+<section style="font-size:16px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;padding:0 2px;word-break:break-word;-webkit-text-size-adjust:100%">
+<section style="margin:0 0 30px;padding:22px 0 20px;border-bottom:1px solid #d5eadf;text-align:center">
+<p style="margin:0 0 14px;text-align:center;line-height:0;font-size:0"><span style="display:inline-block;width:32px;height:3px;border-radius:2px;background-image:linear-gradient(90deg,#0a9a5c 0%,#e8f6ef 100%)"></span></p>
+<p style="margin:0 0 10px;font-size:24px;font-weight:bold;color:#07663e;line-height:1.35;letter-spacing:1px">Pod 一直 Pending 怎么查</p>
+<p style="margin:0;font-size:13px;color:#8ba398;letter-spacing:1px">运维笔记  ·  2026-10-16</p>
+</section>
+<h1 style="margin:38px 0 12px;text-align:center;font-size:24px;font-weight:bold;color:#07663e;line-height:1.4;letter-spacing:.5px">Kubernetes 排查实录：Pod 一直 Pending 的 9 种原因</h1>
+<p style="margin:0 0 26px;text-align:center;line-height:0;font-size:0"><span style="display:inline-block;width:58px;height:4px;border-radius:2px;background-image:linear-gradient(90deg,#0a9a5c 0%,#e8f6ef 100%)"></span></p>
+<blockquote style="margin:22px 0;padding:14px 16px;background-color:#f1f9f5;border-left:4px solid #0a9a5c;border-radius:0 4px 4px 0;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px"><p style="margin:0 0 .9em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">线上出问题时，最贵的不是修复成本，而是定位成本。这份清单是我在三次半夜事故里攒出来的。</p></blockquote>
+<p style="margin:0 0 1.4em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">Pod 卡在 <span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">Pending</span> 说明已经被 API Server 接收，但 <strong>没有找到合适的节点</strong> 或者卷没挂上。我们按出现频率从高到低排查。</p>
+<h2 style="margin:32px 0 16px;font-size:19px;font-weight:bold;color:#07663e;line-height:1.45;letter-spacing:.5px"><span style="display:inline-block;width:4px;height:17px;background-image:linear-gradient(180deg,#0a9a5c 0%,#07663e 100%);border-radius:2px;margin-right:9px;vertical-align:-3px"></span>一、最常见的三类</h2>
+<h3 style="margin:26px 0 12px;font-size:17px;font-weight:bold;color:#07663e;line-height:1.5"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background-color:#0a9a5c;margin-right:7px;vertical-align:2px"></span>1. 资源不足</h3>
+<p style="margin:0 0 1.4em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">先看调度器给出的理由：</p>
+<section style="margin:24px 0;border-radius:6px;overflow:hidden;background-color:#f6f8fa"><section style="margin:0;padding:9px 14px;background-color:#eceff3;border-radius:6px 6px 0 0;line-height:1;font-size:0"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ff5f56;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ffbd2e;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#27c93f;margin-right:6px;vertical-align:1px"></span><span style="font-size:12px;color:#6a737d;letter-spacing:1px;vertical-align:1px">Shell</span></section><section style="margin:0;padding:14px 14px 15px;background-color:#f6f8fa;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;color:#24292e;word-break:break-all;border-radius:0 0 6px 6px"><section style="margin:0;padding:0"><span style="color:#6f42c1">kubectl</span>&nbsp;describe&nbsp;pod&nbsp;nginx<span style="color:#24292e">-</span>7d8b49c5d<span style="color:#24292e">-</span>2xkwj&nbsp;<span style="color:#24292e">|</span>&nbsp;tail&nbsp;<span style="color:#24292e">-</span>n&nbsp;<span style="color:#005cc5">20</span></section></section></section>
+<p style="margin:0 0 1.4em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">输出里重点关注 <span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">Events</span> 段：</p>
+<section style="margin:24px 0;border-radius:6px;overflow:hidden;background-color:#f6f8fa"><section style="margin:0;padding:9px 14px;background-color:#eceff3;border-radius:6px 6px 0 0;line-height:1;font-size:0"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ff5f56;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ffbd2e;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#27c93f;margin-right:6px;vertical-align:1px"></span><span style="font-size:12px;color:#6a737d;letter-spacing:1px;vertical-align:1px">Text</span></section><section style="margin:0;padding:14px 14px 15px;background-color:#f6f8fa;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;color:#24292e;word-break:break-all;border-radius:0 0 6px 6px"><section style="margin:0;padding:0">Events:</section><section style="margin:0;padding:0">&nbsp;&nbsp;Type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reason&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Message</section><section style="margin:0;padding:0">&nbsp;&nbsp;----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-------</section><section style="margin:0;padding:0">&nbsp;&nbsp;Warning&nbsp;&nbsp;FailedScheduling&nbsp;&nbsp;0/12&nbsp;nodes&nbsp;are&nbsp;available:&nbsp;12&nbsp;Insufficient&nbsp;cpu.</section></section></section>
+<p style="margin:0 0 1.4em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">解决思路是二选一：<strong>缩容别的服务</strong> 或者 <em>扩容节点池</em>。</p>
+<section style="margin:22px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;font-size:0"><table style="border-collapse:collapse;width:100%;font-size:14px;border-spacing:0;margin:0"><thead><tr><th style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;background-color:#e8f6ef;color:#07663e;font-weight:bold;border-bottom:1px solid #0a9a5c">资源类型</th><th style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;background-color:#e8f6ef;color:#07663e;font-weight:bold;border-bottom:1px solid #0a9a5c">检查命令</th><th style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;background-color:#e8f6ef;color:#07663e;font-weight:bold;border-bottom:1px solid #0a9a5c">常见坑</th></tr></thead><tbody><tr><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43">CPU</td><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43"><span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">kubectl top node</span></td><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43">request 累加值 &gt; allocatable</td></tr><tr><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43;background-color:#f7fcf9">内存</td><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43;background-color:#f7fcf9"><span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">kubectl top pod -A</span></td><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43;background-color:#f7fcf9">未设置 limit 导致 OOM</td></tr><tr><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43">GPU</td><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43"><span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">kubectl get node -o yaml</span></td><td style="border:1px solid #d5eadf;padding:8px 10px;font-size:14px;line-height:1.6;text-align:left;color:#3b4a43">厂商 device-plugin 未注册</td></tr></tbody></table></section>
+<h3 style="margin:26px 0 12px;font-size:17px;font-weight:bold;color:#07663e;line-height:1.5"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background-color:#0a9a5c;margin-right:7px;vertical-align:2px"></span>2. 污点没容忍</h3>
+<p style="margin:0 0 1.4em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">很多生产集群给节点打了专用污点：</p>
+<section style="margin:24px 0;border-radius:6px;overflow:hidden;background-color:#f6f8fa"><section style="margin:0;padding:9px 14px;background-color:#eceff3;border-radius:6px 6px 0 0;line-height:1;font-size:0"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ff5f56;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ffbd2e;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#27c93f;margin-right:6px;vertical-align:1px"></span><span style="font-size:12px;color:#6a737d;letter-spacing:1px;vertical-align:1px">YAML</span></section><section style="margin:0;padding:14px 14px 15px;background-color:#f6f8fa;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;color:#24292e;word-break:break-all;border-radius:0 0 6px 6px"><section style="margin:0;padding:0"><span style="color:#6f42c1">spec</span>:</section><section style="margin:0;padding:0">&nbsp;&nbsp;<span style="color:#6f42c1">tolerations</span>:</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#24292e">-</span>&nbsp;<span style="color:#6f42c1">key</span>:&nbsp;<span style="color:#032f62">"dedicated"</span></section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6f42c1">operator</span>:&nbsp;<span style="color:#032f62">"Equal"</span></section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6f42c1">value</span>:&nbsp;<span style="color:#032f62">"gpu"</span></section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6f42c1">effect</span>:&nbsp;<span style="color:#032f62">"NoSchedule"</span></section></section></section>
+<p style="margin:0 0 1.4em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">对应的 Python 巡检脚本（每周自动跑一次）：</p>
+<section style="margin:24px 0;border-radius:6px;overflow:hidden;background-color:#f6f8fa"><section style="margin:0;padding:9px 14px;background-color:#eceff3;border-radius:6px 6px 0 0;line-height:1;font-size:0"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ff5f56;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ffbd2e;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#27c93f;margin-right:6px;vertical-align:1px"></span><span style="font-size:12px;color:#6a737d;letter-spacing:1px;vertical-align:1px">Python</span></section><section style="margin:0;padding:14px 14px 15px;background-color:#f6f8fa;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;color:#24292e;word-break:break-all;border-radius:0 0 6px 6px"><section style="margin:0;padding:0"><span style="color:#d73a49">import</span>&nbsp;json</section><section style="margin:0;padding:0"><span style="color:#d73a49">from</span>&nbsp;collections&nbsp;<span style="color:#d73a49">import</span>&nbsp;defaultdict</section><section style="margin:0;padding:0;min-height:1.65em">&nbsp;</section><section style="margin:0;padding:0"><span style="color:#d73a49">import</span>&nbsp;kubernetes</section><section style="margin:0;padding:0;min-height:1.65em">&nbsp;</section><section style="margin:0;padding:0;min-height:1.65em">&nbsp;</section><section style="margin:0;padding:0"><span style="color:#d73a49">def</span>&nbsp;<span style="color:#6f42c1">find_pending_pods</span>(namespace<span style="color:#24292e">=</span><span style="color:#6f42c1">None</span>):</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#032f62">"""列出所有&nbsp;Pending&nbsp;超过&nbsp;5&nbsp;分钟的&nbsp;Pod。"""</span></section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;core&nbsp;<span style="color:#24292e">=</span>&nbsp;kubernetes.client.<span style="color:#6f42c1">CoreV1Api</span>()</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;field&nbsp;<span style="color:#24292e">=</span>&nbsp;<span style="color:#032f62">"status.phase=Pending"</span></section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;resp&nbsp;<span style="color:#24292e">=</span>&nbsp;core.<span style="color:#6f42c1">list_pod_for_all_namespaces</span>(field_selector<span style="color:#24292e">=</span>field)</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;buckets&nbsp;<span style="color:#24292e">=</span>&nbsp;<span style="color:#6f42c1">defaultdict</span>(<span style="color:#6f42c1">list</span>)</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#d73a49">for</span>&nbsp;pod&nbsp;<span style="color:#d73a49">in</span>&nbsp;resp.items:</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reason&nbsp;<span style="color:#24292e">=</span>&nbsp;<span style="color:#032f62">"unknown"</span></section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#d73a49">for</span>&nbsp;cond&nbsp;<span style="color:#d73a49">in</span>&nbsp;pod.status.conditions&nbsp;<span style="color:#d73a49">or</span>&nbsp;[]:</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#d73a49">if</span>&nbsp;cond.reason:</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reason&nbsp;<span style="color:#24292e">=</span>&nbsp;cond.reason</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buckets[reason].<span style="color:#6f42c1">append</span>(f<span style="color:#032f62">"{pod.metadata.namespace}/{pod.metadata.name}"</span>)</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#d73a49">return</span>&nbsp;<span style="color:#6f42c1">dict</span>(buckets)</section><section style="margin:0;padding:0;min-height:1.65em">&nbsp;</section><section style="margin:0;padding:0;min-height:1.65em">&nbsp;</section><section style="margin:0;padding:0"><span style="color:#d73a49">if</span>&nbsp;__name__&nbsp;<span style="color:#24292e">==</span>&nbsp;<span style="color:#032f62">"__main__"</span>:</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;<span style="color:#24292e">=</span>&nbsp;<span style="color:#6f42c1">find_pending_pods</span>()</section><section style="margin:0;padding:0">&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6f42c1">print</span>(json.<span style="color:#6f42c1">dumps</span>(result,&nbsp;ensure_ascii<span style="color:#24292e">=</span><span style="color:#6f42c1">False</span>,&nbsp;indent<span style="color:#24292e">=</span><span style="color:#005cc5">2</span>))</section></section></section>
+<h3 style="margin:26px 0 12px;font-size:17px;font-weight:bold;color:#07663e;line-height:1.5"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background-color:#0a9a5c;margin-right:7px;vertical-align:2px"></span>3. PVC 未绑定</h3>
+<p style="margin:30px 0;text-align:center;line-height:0;font-size:0"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background-color:#0a9a5c;opacity:.45;margin:0 5px"></span><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background-color:#0a9a5c;opacity:.45;margin:0 5px"></span><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background-color:#0a9a5c;opacity:.45;margin:0 5px"></span></p>
+<h2 style="margin:32px 0 16px;font-size:19px;font-weight:bold;color:#07663e;line-height:1.45;letter-spacing:.5px"><span style="display:inline-block;width:4px;height:17px;background-image:linear-gradient(180deg,#0a9a5c 0%,#07663e 100%);border-radius:2px;margin-right:9px;vertical-align:-3px"></span>二、容易被忽略的情况</h2>
+<section style="margin:14px 0"><section style="margin:6px 0;padding-left:1.9em;text-indent:-1.9em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px"><span style="display:inline-block;width:1.9em;text-indent:0;color:#07663e;font-weight:bold">1.&nbsp;</span><strong>节点亲和性写错</strong>：<span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">requiredDuringScheduling</span> 写成了硬性约束</section><section style="margin:6px 0;padding-left:1.9em;text-indent:-1.9em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px"><span style="display:inline-block;width:1.9em;text-indent:0;color:#07663e;font-weight:bold">2.&nbsp;</span><strong>镜像拉取策略</strong>设置成了 <span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">Always</span> 且私有仓库没配 Secret</section><section style="margin:6px 0;padding-left:1.9em;text-indent:-1.9em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px"><span style="display:inline-block;width:1.9em;text-indent:0;color:#07663e;font-weight:bold">3.&nbsp;</span>打了污点但忘记给 <span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">DaemonSet</span> 加容忍</section></section>
+<p style="margin:0 0 1.4em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">最后给一个组合巡检命令，建议写进你的 notes：</p>
+<section style="margin:24px 0;border-radius:6px;overflow:hidden;background-color:#f6f8fa"><section style="margin:0;padding:9px 14px;background-color:#eceff3;border-radius:6px 6px 0 0;line-height:1;font-size:0"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ff5f56;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#ffbd2e;margin-right:6px;vertical-align:1px"></span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background-color:#27c93f;margin-right:6px;vertical-align:1px"></span><span style="font-size:12px;color:#6a737d;letter-spacing:1px;vertical-align:1px">Shell</span></section><section style="margin:0;padding:14px 14px 15px;background-color:#f6f8fa;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:13px;line-height:1.65;color:#24292e;word-break:break-all;border-radius:0 0 6px 6px"><section style="margin:0;padding:0"><span style="color:#6f42c1">kubectl</span>&nbsp;get&nbsp;pods&nbsp;<span style="color:#24292e">-</span>A&nbsp;<span style="color:#24292e">--</span>field<span style="color:#24292e">-</span><span style="color:#6f42c1">selector</span><span style="color:#24292e">=</span>status.<span style="color:#6f42c1">phase</span><span style="color:#24292e">=</span>Pending&nbsp;\</section><section style="margin:0;padding:0">&nbsp;&nbsp;<span style="color:#24292e">-</span>o&nbsp;custom<span style="color:#24292e">-</span><span style="color:#6f42c1">columns</span><span style="color:#24292e">=</span><span style="color:#032f62">'NS:.metadata.namespace,NAME:.metadata.name,NODE:.spec.nodeName,AGE:.metadata.creationTimestamp'</span>&nbsp;\</section><section style="margin:0;padding:0">&nbsp;&nbsp;<span style="color:#24292e">|</span>&nbsp;sort&nbsp;<span style="color:#24292e">-</span>k4</section></section></section>
+<blockquote style="margin:22px 0;padding:14px 16px;background-color:#f1f9f5;border-left:4px solid #0a9a5c;border-radius:0 4px 4px 0;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px"><p style="margin:0 0 .9em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">补充一句：如果上面全是 <span style="background-color:#e8f6ef;color:#07663e;padding:2px 5px;margin:0 2px;border-radius:3px;font-size:14px;font-family:Menlo,Monaco,Consolas,'Courier New',monospace;line-height:1.5;word-break:break-all">0/N nodes are available</span>，大概率不是业务代码的问题，别急着改代码。</p></blockquote>
+<p style="margin:0 0 1.4em;font-size:15px;color:#3b4a43;line-height:1.75;letter-spacing:.5px;text-align:justify">参考文档见 <a href="https://kubernetes.io/zh-cn/docs/concepts/scheduling-eviction/kube-scheduler/" style="color:#0a8f57;text-decoration:none;border-bottom:1px solid #0a8f5780;font-weight:500">Kubernetes 官方调度器说明</a>。</p>
+<section style="margin:34px 0 8px;padding:16px 14px;background:#e8f6ef;border-radius:6px;text-align:center;font-size:13px;color:#8ba398;line-height:1.7">如果这篇文章对你有帮助，欢迎点赞、在看和转发 👋</section>
+</section>
+    </div>
+    <p class="tip">选中正文 → 复制，或点击顶部「复制全文」按钮，然后到公众号后台编辑器粘贴</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+var noticeList = {};
+
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function () { t.classList.remove('show'); }, 2200);
+}
+
+function copyRich() {
+  var el = document.getElementById('mp-content');
+  var html = el.innerHTML;
+  if (navigator.clipboard && window.ClipboardItem) {
+    var item = new ClipboardItem({
+      'text/html': new Blob([html], { type: 'text/html' }),
+      'text/plain': new Blob([el.innerText], { type: 'text/plain' })
+    });
+    navigator.clipboard.write([item]).then(function () {
+      toast('已复制，去公众号编辑器粘贴即可');
+    }, function () { legacyCopy(html); });
+  } else {
+    legacyCopy(html);
+  }
+}
+
+function legacyCopy(html) {
+  var holder = document.createElement('div');
+  holder.innerHTML = html;
+  holder.style.position = 'fixed';
+  holder.style.left = '-9999px';
+  holder.style.top = '0';
+  document.body.appendChild(holder);
+  var range = document.createRange();
+  range.selectNodeContents(holder);
+  var sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  sel.removeAllRanges();
+  document.body.removeChild(holder);
+  toast(ok ? '已复制，去公众号编辑器粘贴即可' : '复制失败，请手动选中正文后 Ctrl/Cmd+C');
+}
+
+function toggleHome() {
+  document.getElementById('phone').classList.toggle('narrow');
+}
+
+document.addEventListener('keydown', function (e) {
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+    e.preventDefault(); copyRich();
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,461 @@
+/* 公众号排版工作台 · 界面样式（只作用于工作台本身，不影响预览区里的内联样式） */
+
+:root {
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --border: #e4e7ec;
+  --border-strong: #d5d9e0;
+  --text: #1f2328;
+  --muted: #6b7280;
+  --faint: #9aa1ab;
+  --accent: #07c160;          /* 微信品牌绿 */
+  --accent-soft: #e7f8ef;
+  --accent-strong: #06ad56;   /* 悬停/按下时的深绿 */
+  --ok: #0a9a5c;
+  --warn: #c07b00;
+  --danger: #c8362f;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 8px 24px rgba(16, 24, 40, .06);
+  --mono: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+* { box-sizing: border-box; }
+
+/* 兜底：hidden 属性必须能真正隐藏元素。
+   浏览器默认的 [hidden]{display:none} 来自 UA 样式表，优先级低于本文件里任何
+   带 display 的类（.btn 的 inline-flex、.check-panel 的 flex 都中过招），
+   一旦被盖过就会出现「JS 设了 hidden 却依然显示 / 点了收起收不起来」。
+   这条规则一次根治整类问题，新增组件不必再单独补 [hidden] 规则。 */
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  overflow: hidden;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* ---------------- 顶栏 ---------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.logo { font-size: 24px; line-height: 1; }
+.brand-text h1 { margin: 0; font-size: 16px; font-weight: 650; letter-spacing: .2px; }
+.brand-text p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+.topbar-actions { margin-left: auto; display: flex; gap: 8px; }
+
+/* ---------------- 按钮 ---------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(7, 193, 96, .32);
+}
+.btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.btn.ghost.danger:hover { background: #fdecec; color: var(--danger); }
+.btn.tiny { padding: 4px 9px; font-size: 12px; border-radius: 6px; }
+.btn .ico { font-size: 14px; line-height: 1; }
+.file-btn { position: relative; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* ---------------- 工具栏 ---------------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 9px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.spacer { flex: 1; }
+
+.field { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+.field > span { white-space: nowrap; }
+.field select,
+.field input {
+  padding: 5px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: #fff;
+  font-size: 13px;
+  color: var(--text);
+  min-width: 120px;
+}
+.field input { width: 160px; }
+.field select:focus, .field input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+
+.check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; }
+.check input { accent-color: var(--accent); width: 15px; height: 15px; }
+
+.more-panel {
+  padding: 14px 20px 16px;
+  background: #fbfcfd;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.more-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px 18px;
+  align-items: center;
+}
+.more-grid .field { justify-content: space-between; }
+.more-grid .field input { width: 100%; max-width: 150px; }
+
+/* ---------------- 工作区 ---------------- */
+
+.workspace {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.15fr);
+  gap: 14px;
+  padding: 14px 20px;
+  min-height: 0;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pane-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: #fcfcfd;
+  flex: none;
+}
+.pane-title { font-size: 13px; font-weight: 600; }
+.pane-hint { font-size: 12px; color: var(--faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+#editor {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  resize: none;
+  padding: 16px 18px;
+  font: 13px/1.75 var(--mono);
+  color: #24292f;
+  background: #fff;
+  tab-size: 2;
+}
+#editor[readonly] { background: #fafbfc; color: var(--muted); }
+.pane-editor.dragging { outline: 2px dashed var(--accent); outline-offset: -6px; }
+
+.seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 7px; overflow: hidden; }
+.seg button {
+  border: 0;
+  background: #fff;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.on { background: var(--accent); color: #fff; }
+
+/* ---------------- 合规自检面板（折叠在编辑区下方，默认收起） ----------------
+   收起态依赖 hidden 属性，显隐的可靠性由文件顶部的全局 [hidden] 规则保证。 */
+
+.check-panel {
+  flex: none;
+  max-height: 46%;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #f0e6d2;
+  background: #fffcf5;
+  min-height: 0;
+}
+.check-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #f0e6d2;
+  flex: none;
+}
+.check-panel-title { font-size: 12px; font-weight: 600; color: #8a5a00; }
+.check-panel-body {
+  flex: 1;
+  padding: 10px 16px 14px;
+  overflow-y: auto;
+  font-size: 13px;
+  min-height: 0;
+}
+.check-panel-body h4 { margin: 10px 0 6px; font-size: 12px; color: var(--muted); font-weight: 600; }
+.check-panel-body h4:first-child { margin-top: 0; }
+.check-panel-body ul { margin: 0 0 6px; padding-left: 18px; }
+.check-panel-body li { margin: 3px 0; line-height: 1.6; }
+.check-panel-body .err-item { color: var(--danger); }
+.check-panel-body .warn-item { color: #8a5a00; }
+.check-panel-body .empty { color: var(--faint); margin: 0; }
+
+/* ---------------- 预览区 ----------------
+   .preview-scroll 是可视窗口；.phone-stage 的尺寸由 JS 设成「缩放后的实际占位」，
+   .phone 始终按真机原始尺寸（424 × 896）渲染后再整体 scale，
+   这样排版与真机逐像素一致，同时保证整块屏幕都能看到。 */
+
+.preview-scroll {
+  flex: 1;
+  overflow: hidden;
+  background: #eef0f3;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+}
+/* 1:1 实际大小模式：内容超出，改为可滚动。
+   justify-content 用 safe center —— 内容比可视区宽时退化左对齐，
+   否则 flex 居中会让左侧溢出部分永远滚不到。 */
+.preview-scroll.scrollable {
+  overflow: auto;
+  align-items: flex-start;
+  justify-content: safe center;
+}
+
+.phone-stage { flex: none; position: relative; }
+
+/* iPhone 18 Pro：CSS 视口 402 × 874 pt，DPR 3×（物理 1206 × 2622，6.3″，19.5:9）
+   .phone 是「机身」，宽度 = 402 屏幕 + 左右各 11 边框 = 424px，
+   所以 .phone-screen 的内容宽度正好是 402px —— 折行、字号观感才会与真机一致。
+   高度 = 874 屏幕 + 2 × 11 边框 = 896px。缩放由 JS 通过 transform 施加。 */
+.phone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: 424px;                    /* 402 屏幕 + 2 × 11 边框 */
+  height: 896px;                   /* 874 屏幕 + 2 × 11 边框 */
+  padding: 11px;                   /* 机身边框厚度 */
+  background: #26262a;             /* 机身（深色钛金属） */
+  border-radius: 58px;
+  transform-origin: top left;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, .35),
+    0 2px 3px rgba(255, 255, 255, .16) inset,
+    0 20px 44px rgba(16, 24, 40, .22);
+  transition: width .2s ease;
+}
+
+.phone-screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 47px;           /* 屏幕圆角 */
+  overflow: hidden;
+}
+
+/* 顶部状态栏 + 灵动岛 */
+.phone-status {
+  position: relative;
+  flex: none;
+  height: 56px;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  z-index: 2;
+}
+.status-time { font-size: 15px; font-weight: 650; letter-spacing: .4px; color: #111; }
+.dynamic-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 37px;
+  background: #000;
+  border-radius: 19px;
+}
+.status-icons { display: flex; align-items: center; gap: 5px; color: #111; }
+/* 状态栏三个图标统一用内联 SVG。
+   原先信号条是 4 个 div、WiFi 是三层 radial-gradient、电池是 border + 伪元素，
+   小尺寸下 WiFi 会糊成一个"彩虹圈"——渐变画不出扇形弧带的锐利切口。
+   SVG 没有这个问题，而且三个图标的描边粗细可以对齐（电池外框 / WiFi 弧带都是 1.6px）。*/
+.status-icons .ico { display: block; fill: currentColor; flex: none; }
+.status-icons .sig { width: 17px; height: 12px; }
+.status-icons .wifi { width: 16px; height: 16px; margin: -2px 0; }
+.status-icons .batt { width: 27px; height: 12px; }
+/* WiFi：三段圆弧描边 + 底部圆点。24 的 viewBox 缩到 16px 时，stroke 2.4 ≈ 1.6px，
+   与电池外框同粗；圆弧自身只占 18 单位高，所以字形视觉高度约 12px，与前两个图标齐平。*/
+.status-icons .wifi .arc {
+  fill: none; stroke: currentColor;
+  stroke-width: 2.4; stroke-linecap: round;
+}
+/* 电池：外框描边 + 右侧极耳 + 内芯（内芯留白，不做满格，接近 iOS 的观感）*/
+.status-icons .batt .shell { fill: none; stroke: currentColor; stroke-width: 1.6; }
+.status-icons .batt .cap,
+.status-icons .batt .cell { fill: currentColor; }
+
+/* 文章内容区：在屏幕内部滚动 */
+.phone-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 20px 22px;
+  background: #fff;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 底部 Home 指示条 */
+.phone-home {
+  flex: none;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+.phone-home i {
+  width: 140px; height: 5px;
+  border-radius: 3px;
+  background: #111;
+  opacity: .25;
+  display: block;
+}
+
+/* 宽屏模式：去掉机身外壳，纯内容视图（尺寸由 JS 铺满预览区） */
+.phone.wide {
+  width: 100%;
+  max-width: 720px;
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, .12);
+}
+.phone.wide .phone-screen { border-radius: 14px; }
+.phone.wide .phone-status,
+.phone.wide .phone-home { display: none; }
+.phone.wide .phone-body { padding: 26px 24px 30px; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--faint); }
+.empty-ico { font-size: 34px; margin-bottom: 12px; }
+.empty-state p { margin: 0 0 6px; font-size: 13px; }
+.empty-state .empty-sub { font-size: 12px; color: #b9bfc7; }
+
+/* ---------------- 状态栏 ---------------- */
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 20px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  flex: none;
+}
+.stats { display: flex; gap: 16px; align-items: center; }
+.stat b { color: var(--text); font-weight: 650; }
+.muted { color: var(--faint); }
+.tiny { font-size: 11px; }
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.badge.ok { background: #e8f6ef; color: var(--ok); }
+.badge.warn { background: #fdf3e3; color: var(--warn); }
+.badge.err { background: #fdecec; color: var(--danger); }
+
+/* ---------------- Toast ---------------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 58px;
+  transform: translateX(-50%) translateY(14px);
+  background: #23272e;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s, transform .22s;
+  z-index: 99;
+  max-width: 80vw;
+  text-align: center;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------------- 窄屏 ---------------- */
+
+@media (max-width: 1000px) {
+  body { overflow: auto; }
+  .workspace { grid-template-columns: 1fr; }
+  .pane-editor { min-height: 360px; }
+  /* 高度不足时手机会自动等比缩小，这里给个够用的下限即可 */
+  .pane-preview { min-height: 560px; }
+  .brand-text p { display: none; }
+}
